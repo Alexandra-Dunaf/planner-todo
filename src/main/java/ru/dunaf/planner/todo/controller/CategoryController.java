@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Category;
+import ru.dunaf.planner.entity.Priority;
+import ru.dunaf.planner.todo.search.PrioritySearchValues;
+import ru.dunaf.planner.todo.service.PriorityService;
 import ru.dunaf.planner.todo.search.CategorySearchValues;
 import ru.dunaf.planner.todo.service.CategoryService;
 
@@ -117,7 +120,4 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-
-
 }
-
