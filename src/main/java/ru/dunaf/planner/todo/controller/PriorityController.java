@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Priority;
 import ru.dunaf.planner.todo.search.PrioritySearchValues;
 import ru.dunaf.planner.todo.service.PriorityService;
+import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,10 +38,13 @@ public class PriorityController {
     // доступ к данным из БД
     private PriorityService priorityService;
 
+    private UserRestBuilder userRestBuilder;
+
     // автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public PriorityController(PriorityService priorityService) {
+    public PriorityController(PriorityService priorityService, UserRestBuilder userRestBuilder) {
         this.priorityService = priorityService;
+        this.userRestBuilder = userRestBuilder;
     }
 
 
@@ -69,9 +73,15 @@ public class PriorityController {
             return new ResponseEntity("missed param: color", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        // save работает как на добавление, так и на обновление
-        return ResponseEntity.ok(priorityService.add(priority));
+        //если такой пользователь
+        if(userRestBuilder.userExists(priority.getUserId())) {
+            // возвращаем добавленный объект с заполненным ID
+            return ResponseEntity.ok(priorityService.add(priority));
+    } // если пользователя НЕ существует
+        return new ResponseEntity("user id=" + priority.getUserId() + " not found", HttpStatus.NOT_ACCEPTABLE);
     }
+
+
 
 
     @PutMapping("/update")
@@ -149,6 +159,7 @@ public class PriorityController {
         // если вместо текста будет пусто или null - вернутся все категории
         return ResponseEntity.ok(priorityService.find(prioritySearchValues.getTitle(), prioritySearchValues.getUserId()));
     }
+
 
 
 }
