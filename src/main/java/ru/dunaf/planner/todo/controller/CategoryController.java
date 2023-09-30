@@ -5,9 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Category;
-import ru.dunaf.planner.entity.Priority;
-import ru.dunaf.planner.todo.search.PrioritySearchValues;
-import ru.dunaf.planner.todo.service.PriorityService;
+import ru.dunaf.planner.todo.feign.UserFeignClient;
 import ru.dunaf.planner.todo.search.CategorySearchValues;
 import ru.dunaf.planner.todo.service.CategoryService;
 import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
@@ -33,11 +31,14 @@ public class CategoryController {
     //микросервисы для работы с пользователями
     private final UserRestBuilder userRestBuilder;
 
+    private final UserFeignClient userFeignClient;
+
     // используем автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public CategoryController(CategoryService categoryService, UserRestBuilder userRestBuilder) {
+    public CategoryController(CategoryService categoryService, UserRestBuilder userRestBuilder, UserFeignClient userFeignClient) {
         this.categoryService = categoryService;
         this.userRestBuilder = userRestBuilder;
+        this.userFeignClient = userFeignClient;
     }
 
     @GetMapping("/id")
@@ -63,9 +64,13 @@ public class CategoryController {
             return new ResponseEntity("missed param: title MUST be not null", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        //если такой пользователь
-        if(userRestBuilder.userExists(category.getUserId())) {
-            // возвращаем добавленный объект с заполненным ID
+//        //если такой пользователь
+//        if(userRestBuilder.userExists(category.getUserId())) {
+//            // возвращаем добавленный объект с заполненным ID
+//            return ResponseEntity.ok(categoryService.add(category));
+//        }
+
+        if(userFeignClient.findUserById(category.getUserId()) != null) {
             return ResponseEntity.ok(categoryService.add(category));
         }
         // если пользователя НЕ существует
