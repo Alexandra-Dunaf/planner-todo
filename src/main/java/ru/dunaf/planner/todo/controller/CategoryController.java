@@ -10,28 +10,44 @@ import ru.dunaf.planner.todo.search.PrioritySearchValues;
 import ru.dunaf.planner.todo.service.PriorityService;
 import ru.dunaf.planner.todo.search.CategorySearchValues;
 import ru.dunaf.planner.todo.service.CategoryService;
+import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/*
+
+Используем @RestController вместо обычного @Controller, чтобы все ответы сразу оборачивались в JSON,
+иначе пришлось бы добавлять лишние объекты в код, использовать @ResponseBody для ответа, указывать тип отправки JSON
+
+Названия методов могут быть любыми, главное не дублировать их имена внутри класса и URL mapping
+
+*/
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
 
-    private final CategoryService service;
+    //доступ к данным из БД
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryService service) {
-        this.service = service;
+    //микросервисы для работы с пользователями
+    private final UserRestBuilder userRestBuilder;
+
+    // используем автоматическое внедрение экземпляра класса через конструктор
+    // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
+    public CategoryController(CategoryService categoryService, UserRestBuilder userRestBuilder) {
+        this.categoryService = categoryService;
+        this.userRestBuilder = userRestBuilder;
     }
 
     @GetMapping("/id")
     public Category findById() {
-        return service.findById(60140L);
+        return categoryService.findById(60140L);
     }
 
     @PostMapping("/all")
     public List<Category> findAll(@RequestBody Long userId) {
-        return service.findAll(userId);
+        return categoryService.findAll(userId);
     }
 
     @PostMapping("/add")
@@ -47,7 +63,13 @@ public class CategoryController {
             return new ResponseEntity("missed param: title MUST be not null", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return ResponseEntity.ok(service.add(category));
+        //если такой пользователь
+        if(userRestBuilder.userExists(category.getUserId())) {
+            // возвращаем добавленный объект с заполненным ID
+            return ResponseEntity.ok(categoryService.add(category));
+        }
+        // если пользователя НЕ существует
+        return new ResponseEntity("user id=" + category.getUserId() + " not found", HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping("/update")
@@ -64,7 +86,7 @@ public class CategoryController {
         }
 
         // save работает как на добавление, так и на обновление
-        service.update(category);
+        categoryService.update(category);
 
         return new ResponseEntity(HttpStatus.OK); // просто отправляем статус 200 (операция прошла успешно)
     }
@@ -77,7 +99,7 @@ public class CategoryController {
         // можно обойтись и без try-catch, тогда будет возвращаться полная ошибка (stacktrace)
         // здесь показан пример, как можно обрабатывать исключение и отправлять свой текст/статус
         try {
-            service.deleteById(id);
+            categoryService.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -96,7 +118,7 @@ public class CategoryController {
         }
 
         // поиск категорий пользователя по названию
-        List<Category> list = service.findByTitle(categorySearchValues.getTitle(), categorySearchValues.getUserId());
+        List<Category> list = categoryService.findByTitle(categorySearchValues.getTitle(), categorySearchValues.getUserId());
 
         return ResponseEntity.ok(list);
     }
@@ -111,7 +133,7 @@ public class CategoryController {
         // можно обойтись и без try-catch, тогда будет возвращаться полная ошибка (stacktrace)
         // здесь показан пример, как можно обрабатывать исключение и отправлять свой текст/статус
         try {
-            category = service.findById(id);
+            category = categoryService.findById(id);
         } catch (NoSuchElementException e) { // если объект не будет найден
             e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
