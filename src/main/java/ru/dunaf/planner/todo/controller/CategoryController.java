@@ -8,7 +8,7 @@ import ru.dunaf.planner.entity.Category;
 import ru.dunaf.planner.todo.feign.UserFeignClient;
 import ru.dunaf.planner.todo.search.CategorySearchValues;
 import ru.dunaf.planner.todo.service.CategoryService;
-import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
+import ru.dunaf.planner.utils.rest.resttemplate.UserRestBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;

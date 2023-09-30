@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Task;
 import ru.dunaf.planner.todo.search.TaskSearchValues;
 import ru.dunaf.planner.todo.service.TaskService;
-import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
-import ru.dunaf.planner.utils.webclient.UserWebClientBuilder;
+import ru.dunaf.planner.utils.rest.resttemplate.UserRestBuilder;
+import ru.dunaf.planner.utils.rest.webclient.UserWebClientBuilder;
 
 import java.text.ParseException;
 import java.util.Calendar;

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Priority;
 import ru.dunaf.planner.todo.search.PrioritySearchValues;
 import ru.dunaf.planner.todo.service.PriorityService;
-import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
-import ru.dunaf.planner.utils.webclient.UserWebClientBuilder;
+import ru.dunaf.planner.utils.rest.resttemplate.UserRestBuilder;
+import ru.dunaf.planner.utils.rest.webclient.UserWebClientBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
