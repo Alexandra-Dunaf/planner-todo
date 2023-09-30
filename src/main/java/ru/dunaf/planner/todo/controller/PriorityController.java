@@ -8,6 +8,7 @@ import ru.dunaf.planner.entity.Priority;
 import ru.dunaf.planner.todo.search.PrioritySearchValues;
 import ru.dunaf.planner.todo.service.PriorityService;
 import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
+import ru.dunaf.planner.utils.webclient.UserWebClientBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -36,15 +37,17 @@ import java.util.NoSuchElementException;
 public class PriorityController {
 
     // доступ к данным из БД
-    private PriorityService priorityService;
+    private final PriorityService priorityService;
 
-    private UserRestBuilder userRestBuilder;
+    private final UserRestBuilder userRestBuilder;
+    private final UserWebClientBuilder userWebClientBuilder;
 
     // автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public PriorityController(PriorityService priorityService, UserRestBuilder userRestBuilder) {
+    public PriorityController(PriorityService priorityService, UserRestBuilder userRestBuilder, UserWebClientBuilder userWebClientBuilder) {
         this.priorityService = priorityService;
         this.userRestBuilder = userRestBuilder;
+        this.userWebClientBuilder = userWebClientBuilder;
     }
 
 
@@ -74,7 +77,7 @@ public class PriorityController {
         }
 
         //если такой пользователь
-        if(userRestBuilder.userExists(priority.getUserId())) {
+        if(userWebClientBuilder.userExists(priority.getUserId())) {
             // возвращаем добавленный объект с заполненным ID
             return ResponseEntity.ok(priorityService.add(priority));
     } // если пользователя НЕ существует
