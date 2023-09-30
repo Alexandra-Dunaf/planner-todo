@@ -25,6 +25,7 @@ import ru.dunaf.planner.entity.Task;
 import ru.dunaf.planner.todo.search.TaskSearchValues;
 import ru.dunaf.planner.todo.service.TaskService;
 import ru.dunaf.planner.utils.resttemplate.UserRestBuilder;
+import ru.dunaf.planner.utils.webclient.UserWebClientBuilder;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -39,13 +40,15 @@ public class TaskController {
     public static final String ID_COLUMN = "id"; // имя столбца id
     private final TaskService taskService; // сервис для доступа к данным (напрямую к репозиториям не обращаемся)
     private final UserRestBuilder userRestBuilder;
+    private final UserWebClientBuilder userWebClientBuilder;
 
 
     // используем автоматическое внедрение экземпляра класса через конструктор
     // не используем @Autowired ля переменной класса, т.к. "Field injection is not recommended "
-    public TaskController(TaskService taskService, UserRestBuilder userRestBuilder) {
+    public TaskController(TaskService taskService, UserRestBuilder userRestBuilder, UserWebClientBuilder userWebClientBuilder) {
         this.taskService = taskService;
         this.userRestBuilder = userRestBuilder;
+        this.userWebClientBuilder = userWebClientBuilder;
     }
 
 
@@ -70,11 +73,10 @@ public class TaskController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        //если такой пользователь
-        if(userRestBuilder.userExists(task.getUserId())) {
-            // возвращаем добавленный объект с заполненным ID
-            return ResponseEntity.ok(taskService.add(task));
-        } // если пользователя НЕ существует
+        //подписываемся на результат
+        userWebClientBuilder.userExistsAsync(task.getUserId()).subscribe(user -> System.out.println("user = " + user));
+
+        // если пользователя НЕ существует
         return new ResponseEntity("user id=" + task.getUserId() + " not found", HttpStatus.NOT_ACCEPTABLE);
     }
 
