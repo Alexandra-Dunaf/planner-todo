@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan(basePackages = {"ru.dunaf.planner"})
 @EnableJpaRepositories(basePackages = {"ru.dunaf.planner.todo.repo"})
 @EntityScan(basePackages = {"ru.dunaf.planner.entity"})
-@EnableFeignClients
 public class PlannerTodoApplication {
 
     public static void main(String[] args) {

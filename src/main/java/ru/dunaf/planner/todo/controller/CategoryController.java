@@ -1,10 +1,12 @@
 package ru.dunaf.planner.todo.controller;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.dunaf.planner.entity.Category;
+import ru.dunaf.planner.entity.User;
 import ru.dunaf.planner.todo.feign.UserFeignClient;
 import ru.dunaf.planner.todo.search.CategorySearchValues;
 import ru.dunaf.planner.todo.service.CategoryService;
@@ -70,9 +72,22 @@ public class CategoryController {
 //            return ResponseEntity.ok(categoryService.add(category));
 //        }
 
-        if(userFeignClient.findUserById(category.getUserId()) != null) {
+//        if(userFeignClient.findUserById(category.getUserId()) != null) {
+//            return ResponseEntity.ok(categoryService.add(category));
+//        }
+
+        // вызов мс через feign интерфейс
+
+        ResponseEntity<User> result =  userFeignClient.findUserById(category.getUserId());
+
+        if (result == null){ // если мс недоступен - вернется null
+            return new ResponseEntity("система пользователей недоступна, попробуйте позже", HttpStatus.NOT_FOUND);
+        }
+
+        if (result.getBody() != null){ // если пользователь не пустой
             return ResponseEntity.ok(categoryService.add(category));
         }
+
         // если пользователя НЕ существует
         return new ResponseEntity("user id=" + category.getUserId() + " not found", HttpStatus.NOT_ACCEPTABLE);
     }
