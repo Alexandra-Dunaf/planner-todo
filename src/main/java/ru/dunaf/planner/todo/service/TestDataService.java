@@ -1,5 +1,6 @@
 package ru.dunaf.planner.todo.service;
 
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import ru.dunaf.planner.entity.Category;
 import ru.dunaf.planner.entity.Priority;
@@ -21,6 +22,11 @@ public class TestDataService {
         this.taskService = taskService;
         this.priorityService = priorityService;
         this.categoryService = categoryService;
+    }
+
+    @KafkaListener(topics = "test")
+    public void listenKafka(Long userId) {
+        System.out.println("new userId = " + userId);
     }
 
     public void initTestData(Long userId){
